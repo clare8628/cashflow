@@ -35,7 +35,34 @@ npm run dev
 
 打開 [http://localhost:3000](http://localhost:3000) 查看。
 
-## 部署到 Vercel
+## 部署到 Cloudflare Workers（目前使用中）
+
+網站已部署在：**https://cashflow.clare8628.workers.dev**
+
+用的是 [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) adapter，把 Next.js 轉換成 Cloudflare Worker。相關設定：
+
+- `wrangler.jsonc`：Worker 設定，`NOTION_ROOT_PAGE_ID` 以明文 `vars` 存放（非機密資訊）。
+- `NOTION_TOKEN` 是用 `wrangler secret put NOTION_TOKEN` 上傳的 Worker secret，只存在 Cloudflare 後台，不會出現在程式碼或 git 紀錄中。
+
+之後要重新部署（例如改了程式碼）：
+
+```bash
+npm run cf:deploy
+```
+
+如果 `NOTION_TOKEN` 需要更新：
+
+```bash
+npx wrangler secret put NOTION_TOKEN
+```
+
+本機若想用 Cloudflare 環境（含 Worker bindings）預覽，可用：
+
+```bash
+npm run cf:preview
+```
+
+## 部署到 Vercel（備用方案）
 
 1. 把這個專案 push 到 GitHub，在 [vercel.com](https://vercel.com) 匯入這個 repo。
 2. 在 Vercel 專案的 **Settings → Environment Variables** 設定：
