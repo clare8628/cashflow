@@ -18,6 +18,12 @@ export default function MonthProgress({ label, spent, budget, dayOfMonth, daysIn
   const datePct = Math.round(dateRatio * 100);
 
   const barColor = spentRatio > 1 ? "bg-red-500" : spentRatio >= 0.7 ? "bg-amber-500" : "bg-emerald-500";
+  const textColor =
+    spentRatio > 1
+      ? "text-red-600 dark:text-red-400"
+      : spentRatio >= 0.7
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-emerald-600 dark:text-emerald-400";
 
   const diff = spentRatio - dateRatio;
   let suggestion: string;
@@ -46,13 +52,17 @@ export default function MonthProgress({ label, spent, budget, dayOfMonth, daysIn
         </p>
       )}
 
-      <div className="mt-4 space-y-1">
-        <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
-          <span>花費進度</span>
-          <span>
-            {formatNT(spent)} / {formatNT(budget)}（{spentPct}%）
-          </span>
+      <div className="mt-4 flex items-end gap-4">
+        <span className={`text-4xl font-bold tabular-nums leading-none ${textColor}`}>{spentPct}%</span>
+        <div className="pb-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+          <div>花費進度</div>
+          <div className="tabular-nums">
+            {formatNT(spent)} / {formatNT(budget)}
+          </div>
         </div>
+      </div>
+
+      <div className="mt-3 space-y-1">
         <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
           <div
             className={`h-full rounded-full transition-all ${barColor}`}

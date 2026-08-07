@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { Entry } from "@/lib/types";
 import { colorForCategory, groupByCategory } from "@/lib/categorize";
+import CategoryIcon from "./CategoryIcon";
 
 interface Props {
   label: string;
@@ -79,11 +80,13 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                           : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                       }`}
                     >
-                      <span className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                      <span className="flex items-center gap-2.5 text-zinc-700 dark:text-zinc-300">
                         <span
-                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
                           style={{ backgroundColor: colorForCategory(g.name) }}
-                        />
+                        >
+                          <CategoryIcon name={g.name} className="h-3.5 w-3.5 text-white" />
+                        </span>
                         {g.name}
                       </span>
                       <span className="text-zinc-500 dark:text-zinc-400">
@@ -97,7 +100,13 @@ export default function CategoryBreakdown({ label, entries }: Props) {
 
             {selectedGroup ? (
               <div className="mt-4 border-t border-black/10 pt-3 dark:border-white/10">
-                <p className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  <span
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
+                    style={{ backgroundColor: colorForCategory(selectedGroup.name) }}
+                  >
+                    <CategoryIcon name={selectedGroup.name} className="h-3 w-3 text-white" />
+                  </span>
                   {selectedGroup.name} 花費明細
                 </p>
                 <ul className="flex max-h-40 flex-col gap-1 overflow-y-auto text-sm">
