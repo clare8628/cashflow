@@ -2,7 +2,11 @@ import type { CurrentMonthSummary, Entry, MonthSummary, NotionSummaryResponse } 
 
 const NOTION_VERSION = "2022-06-28";
 const MONTH_TITLE_RE = /^(\d{1,2})\s*月$/;
-const ENTRY_LINE_RE = /^(\d{1,2})\/(\d{1,2})\s+(.+?)\s+([\d,]+(?:\.\d+)?)\s*$/;
+// A day line: "8/7 <item>" or "8/7 <item1>、<item2>、<item3>" (items may also be
+// separated by plain commas). Each item's amount doesn't require a space
+// before it, e.g. "啤酒530".
+const DAY_LINE_RE = /^(\d{1,2})\/(\d{1,2})\s+(.+)$/;
+const ITEM_RE = /^(.+?)\s*([\d,]+(?:\.\d+)?)$/;
 
 interface NotionBlock {
   id: string;
@@ -68,17 +72,27 @@ function parseEntriesFromText(text: string, monthNumber: number): Entry[] {
 
   const entries: Entry[] = [];
   for (const line of lines) {
-    const match = line.match(ENTRY_LINE_RE);
-    if (!match) continue;
-    const [, , dayStr, description, amountStr] = match;
-    const amount = Number(amountStr.replace(/,/g, ""));
-    if (Number.isNaN(amount)) continue;
-    entries.push({
-      month: monthNumber,
-      day: Number(dayStr),
-      description: description.trim(),
-      amount,
-    });
+    const dayMatch = line.match(DAY_LINE_RE);
+    if (!dayMatch) continue;
+    const [, , dayStr, rest] = dayMatch;
+    const items = rest
+      .split(/[、,，]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    for (const item of items) {
+      const itemMatch = item.match(ITEM_RE);
+      if (!itemMatch) continue;
+      const [, description, amountStr] = itemMatch;
+      const amount = Number(amountStr.replace(/,/g, ""));
+      if (Number.isNaN(amount)) continue;
+      entries.push({
+        month: monthNumber,
+        day: Number(dayStr),
+        description: description.trim(),
+        amount,
+      });
+    }
   }
   return entries;
 }
