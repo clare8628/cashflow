@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import CategoryBreakdown from "@/components/CategoryBreakdown";
 import MonthProgress from "@/components/MonthProgress";
 import SurplusHistory from "@/components/SurplusHistory";
 import type { NotionSummaryResponse } from "@/lib/types";
@@ -94,6 +95,7 @@ export default function Home() {
               daysInMonth={data.currentMonth.daysInMonth}
               pageMissing={data.currentMonth.pageMissing}
             />
+            <CategoryBreakdown label={data.currentMonth.label} entries={data.currentMonth.entries} />
             <SurplusHistory months={data.months} budget={budget} />
           </>
         )}
