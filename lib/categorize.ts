@@ -94,7 +94,7 @@ export function groupByCategory(entries: Entry[]): CategoryGroup[] {
     .map(([name, groupEntries]) => ({
       name,
       total: groupEntries.reduce((sum, e) => sum + e.amount, 0),
-      entries: [...groupEntries].sort((a, b) => b.amount - a.amount),
+      entries: [...groupEntries].sort((a, b) => a.month - b.month || a.day - b.day),
     }))
     .sort((a, b) => b.total - a.total);
 }
