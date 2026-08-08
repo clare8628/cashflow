@@ -1,44 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 生成り (kinari) paper tones */
+  --background: #f1ebdc;
+  --card: #fbf8f2;
+  --foreground: #2a2622;
+  --secondary: #6b655a;
+  --muted: #9c9484;
+  --border: #ded5c0;
 
-  --cat-1: #2a78d6;
-  --cat-2: #eb6834;
-  --cat-3: #1baf7a;
-  --cat-4: #eda100;
-  --cat-5: #e87ba4;
-  --cat-6: #008300;
-  --cat-7: #4a3aa7;
-  --cat-other: #898781;
+  /* 藍 (ai) indigo — primary accent */
+  --accent: #245690;
+
+  /* status: 緑青 rokusho / 朽葉 kuchiba / 茜 akane */
+  --status-good: #2e7d4f;
+  --status-warn: #b5651d;
+  --status-critical: #a6323c;
+
+  /* categorical: 朱 / 藍 / 抹茶 / 藤 / 青磁 / 牡丹 / 山吹 */
+  --cat-1: #c4522a;
+  --cat-2: #245690;
+  --cat-3: #5b8a3a;
+  --cat-4: #6b4fa0;
+  --cat-5: #0e8a6e;
+  --cat-6: #b8447a;
+  --cat-7: #b8901c;
+  --cat-other: #8c8575;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-card: var(--card);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-status-good: var(--status-good);
+  --color-status-warn: var(--status-warn);
+  --color-status-critical: var(--status-critical);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #17140f;
+    --card: #201c15;
+    --foreground: #f0e9da;
+    --secondary: #b8ae9a;
+    --muted: #8c8575;
+    --border: #35301f;
 
-    --cat-1: #3987e5;
-    --cat-2: #d95926;
-    --cat-3: #199e70;
-    --cat-4: #c98500;
-    --cat-5: #d55181;
-    --cat-6: #008300;
-    --cat-7: #9085e9;
-    --cat-other: #898781;
+    --accent: #3a659e;
+
+    --status-good: #4fa070;
+    --status-warn: #d68a3c;
+    --status-critical: #c85868;
+
+    --cat-1: #c86238;
+    --cat-2: #4b7bc0;
+    --cat-3: #6b9e48;
+    --cat-4: #9678c7;
+    --cat-5: #1f9478;
+    --cat-6: #c05585;
+    --cat-7: #b88b24;
+    --cat-other: #9c9484;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

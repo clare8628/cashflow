@@ -25,13 +25,13 @@ export default function CategoryBreakdown({ label, entries }: Props) {
   const selectedGroup = groups.find((g) => g.name === selected) ?? null;
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{label} 花費分類</h2>
+    <div className="rounded-sm border border-border bg-card p-8">
+      <h2 className="font-serif text-base font-semibold tracking-wide text-foreground">{label} 花費分類</h2>
 
       {groups.length === 0 ? (
-        <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">本月尚無花費資料。</p>
+        <p className="mt-4 text-sm text-secondary">本月尚無花費資料。</p>
       ) : (
-        <div className="mt-4 flex flex-col gap-6 sm:flex-row">
+        <div className="mt-5 flex flex-col gap-6 sm:flex-row">
           <div className="h-64 w-full shrink-0 sm:w-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -42,7 +42,7 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                   innerRadius="55%"
                   outerRadius="90%"
                   paddingAngle={groups.length > 1 ? 2 : 0}
-                  stroke="var(--background)"
+                  stroke="var(--card)"
                   strokeWidth={2}
                   onClick={(entry) => toggle(entry.name as string)}
                   className="cursor-pointer outline-none"
@@ -57,7 +57,7 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                 </Pie>
                 <Tooltip
                   formatter={(value, name) => [formatNT(Number(value)), name]}
-                  contentStyle={{ fontSize: 13 }}
+                  contentStyle={{ fontSize: 13, borderRadius: 2 }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -74,13 +74,11 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                       type="button"
                       onClick={() => toggle(g.name)}
                       aria-pressed={isSelected}
-                      className={`flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left text-sm transition-colors ${
-                        isSelected
-                          ? "bg-zinc-100 dark:bg-zinc-800"
-                          : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                      className={`flex w-full items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-left text-sm transition-colors ${
+                        isSelected ? "bg-accent/10" : "hover:bg-muted/10"
                       }`}
                     >
-                      <span className="flex items-center gap-2.5 text-zinc-700 dark:text-zinc-300">
+                      <span className="flex items-center gap-2.5 text-foreground">
                         <span
                           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
                           style={{ backgroundColor: colorForCategory(g.name) }}
@@ -89,7 +87,7 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                         </span>
                         {g.name}
                       </span>
-                      <span className="text-zinc-500 dark:text-zinc-400">
+                      <span className="tabular-nums text-secondary">
                         {formatNT(g.total)}（{pct}%）
                       </span>
                     </button>
@@ -99,8 +97,8 @@ export default function CategoryBreakdown({ label, entries }: Props) {
             </ul>
 
             {selectedGroup ? (
-              <div className="mt-4 border-t border-black/10 pt-3 dark:border-white/10">
-                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <div className="mt-4 border-t border-border pt-3">
+                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
                   <span
                     className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
                     style={{ backgroundColor: colorForCategory(selectedGroup.name) }}
@@ -113,7 +111,7 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                   {selectedGroup.entries.map((e, i) => (
                     <li
                       key={`${e.month}-${e.day}-${e.description}-${i}`}
-                      className="flex items-center justify-between gap-3 text-zinc-600 dark:text-zinc-400"
+                      className="flex items-center justify-between gap-3 text-secondary"
                     >
                       <span className="truncate">
                         {e.month}/{e.day} {e.description}
@@ -124,9 +122,7 @@ export default function CategoryBreakdown({ label, entries }: Props) {
                 </ul>
               </div>
             ) : (
-              <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-                點選圖表或類別查看花費項目明細。
-              </p>
+              <p className="mt-4 text-sm text-secondary">點選圖表或類別查看花費項目明細。</p>
             )}
           </div>
         </div>

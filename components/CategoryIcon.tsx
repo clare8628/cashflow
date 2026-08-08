@@ -53,7 +53,7 @@ export default function CategoryIcon({ name, className }: { name: string; classN
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={1.25}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}

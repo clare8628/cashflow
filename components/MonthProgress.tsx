@@ -17,13 +17,8 @@ export default function MonthProgress({ label, spent, budget, dayOfMonth, daysIn
   const spentPct = Math.round(spentRatio * 100);
   const datePct = Math.round(dateRatio * 100);
 
-  const barColor = spentRatio > 1 ? "bg-red-500" : spentRatio >= 0.7 ? "bg-amber-500" : "bg-emerald-500";
-  const textColor =
-    spentRatio > 1
-      ? "text-red-600 dark:text-red-400"
-      : spentRatio >= 0.7
-        ? "text-amber-600 dark:text-amber-400"
-        : "text-emerald-600 dark:text-emerald-400";
+  const statusVar = spentRatio > 1 ? "--status-critical" : spentRatio >= 0.7 ? "--status-warn" : "--status-good";
+  const statusColor = `var(${statusVar})`;
 
   const diff = spentRatio - dateRatio;
   let suggestion: string;
@@ -38,50 +33,52 @@ export default function MonthProgress({ label, spent, budget, dayOfMonth, daysIn
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
+    <div className="rounded-sm border border-border bg-card p-8">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{label} 花費進度</h2>
-        <span className="text-sm text-zinc-500 dark:text-zinc-400">
-          第 {dayOfMonth} / {daysInMonth} 天
+        <h2 className="font-serif text-base font-semibold tracking-wide text-foreground">{label} 花費進度</h2>
+        <span className="text-xs tracking-wide text-muted">
+          第 {dayOfMonth} ／ {daysInMonth} 天
         </span>
       </div>
 
       {pageMissing && (
-        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+        <p className="mt-3 rounded-sm border border-status-warn/30 bg-status-warn/10 px-3 py-2 text-sm text-status-warn">
           尚未在 Notion 建立本月頁面，目前花費以 0 計算。
         </p>
       )}
 
-      <div className="mt-4 flex items-end gap-4">
-        <span className={`text-4xl font-bold tabular-nums leading-none ${textColor}`}>{spentPct}%</span>
-        <div className="pb-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="mt-6 flex items-end gap-4">
+        <span className="font-serif text-4xl font-bold tabular-nums leading-none" style={{ color: statusColor }}>
+          {spentPct}%
+        </span>
+        <div className="pb-0.5 text-sm text-secondary">
           <div>花費進度</div>
           <div className="tabular-nums">
-            {formatNT(spent)} / {formatNT(budget)}
+            {formatNT(spent)} ／ {formatNT(budget)}
           </div>
         </div>
       </div>
 
-      <div className="mt-3 space-y-1">
-        <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+      <div className="mt-4">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
           <div
-            className={`h-full rounded-full transition-all ${barColor}`}
-            style={{ width: `${Math.min(spentRatio, 1) * 100}%` }}
+            className="h-full rounded-full transition-all"
+            style={{ width: `${Math.min(spentRatio, 1) * 100}%`, backgroundColor: statusColor }}
           />
         </div>
       </div>
 
-      <div className="mt-3 space-y-1">
-        <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
+      <div className="mt-5">
+        <div className="flex justify-between text-xs tracking-wide text-secondary">
           <span>日期進度</span>
-          <span>{datePct}%</span>
+          <span className="tabular-nums">{datePct}%</span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-          <div className="h-full rounded-full bg-zinc-400 dark:bg-zinc-500" style={{ width: `${dateRatio * 100}%` }} />
+        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border">
+          <div className="h-full rounded-full bg-muted" style={{ width: `${dateRatio * 100}%` }} />
         </div>
       </div>
 
-      <p className="mt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">{suggestion}</p>
+      <p className="mt-5 text-sm text-secondary">{suggestion}</p>
     </div>
   );
 }

@@ -39,30 +39,34 @@ export default function SurplusHistory({ months, budget }: Props) {
           : "累積結餘剛好打平。";
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">每月結餘 / 透支歷史</h2>
+    <div className="rounded-sm border border-border bg-card p-8">
+      <h2 className="font-serif text-base font-semibold tracking-wide text-foreground">每月結餘 ／ 透支歷史</h2>
 
-      <div className="mt-4 h-72 w-full">
+      <div className="mt-5 h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
-            <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="label" tick={{ fontSize: 12, fill: "var(--muted)" }} />
+            <YAxis
+              tick={{ fontSize: 12, fill: "var(--muted)" }}
+              tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+            />
             <Tooltip
               formatter={(value, name) => [formatNT(Number(value)), name === "surplus" ? "當月結餘/透支" : "累積結餘/透支"]}
+              contentStyle={{ fontSize: 13, borderRadius: 2 }}
             />
-            <ReferenceLine y={0} stroke="#71717a" />
-            <Bar dataKey="surplus" name="surplus" radius={[4, 4, 4, 4]}>
+            <ReferenceLine y={0} stroke="var(--muted)" />
+            <Bar dataKey="surplus" name="surplus" radius={[2, 2, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell key={index} fill={entry.surplus >= 0 ? "#10b981" : "#ef4444"} />
+                <Cell key={index} fill={entry.surplus >= 0 ? "var(--status-good)" : "var(--status-critical)"} />
               ))}
             </Bar>
-            <Line type="monotone" dataKey="cumulative" name="cumulative" stroke="#3b82f6" strokeWidth={2} dot />
+            <Line type="monotone" dataKey="cumulative" name="cumulative" stroke="var(--accent)" strokeWidth={2} dot />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">{summary}</p>
+      <p className="mt-5 text-sm text-secondary">{summary}</p>
     </div>
   );
 }

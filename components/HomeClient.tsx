@@ -52,27 +52,32 @@ export default function HomeClient() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-10 dark:bg-black sm:px-8">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">退休金流管理</h1>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">資料來源：Notion「退休每月金流管理」</p>
+    <div className="min-h-screen bg-background px-4 py-12 sm:px-10">
+      <main className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+        <div className="flex flex-col gap-6 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="mt-1 h-8 w-[3px] shrink-0 bg-accent" aria-hidden="true" />
+            <div>
+              <h1 className="font-serif text-2xl font-semibold tracking-wide text-foreground">
+                退休金流管理
+              </h1>
+              <p className="mt-1.5 text-sm text-secondary">資料來源・Notion「退休每月金流管理」</p>
+            </div>
           </div>
           <div className="flex items-end gap-3">
-            <label className="flex flex-col text-sm text-zinc-600 dark:text-zinc-400">
+            <label className="flex flex-col text-xs tracking-wide text-secondary">
               每月預算上限
               <input
                 type="number"
                 value={budgetLoaded ? budget : ""}
                 onChange={(e) => handleBudgetChange(Number(e.target.value))}
-                className="mt-1 w-32 rounded-lg border border-black/10 bg-white px-3 py-1.5 text-zinc-900 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-50"
+                className="mt-1.5 w-32 rounded-sm border border-border bg-card px-3 py-1.5 text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <button
               onClick={refresh}
               disabled={loading}
-              className="h-9 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
+              className="h-9 rounded-sm bg-accent px-4 text-sm font-medium tracking-wide text-white transition-opacity disabled:opacity-50"
             >
               {loading ? "更新中…" : "重新整理"}
             </button>
@@ -80,7 +85,7 @@ export default function HomeClient() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+          <div className="rounded-sm border border-status-critical/30 bg-status-critical/10 px-4 py-3 text-sm text-status-critical">
             讀取 Notion 資料失敗：{error}
           </div>
         )}
@@ -101,7 +106,7 @@ export default function HomeClient() {
         )}
 
         {!data && loading && (
-          <div className="rounded-2xl border border-black/10 bg-white p-6 text-center text-sm text-zinc-500 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400">
+          <div className="rounded-sm border border-border bg-card p-6 text-center text-sm text-secondary">
             正在讀取 Notion 資料…
           </div>
         )}
