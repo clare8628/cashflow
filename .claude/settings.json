@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(wrangler pages project list)",
+      "Bash(wrangler pages deployment list *)",
+      "Bash(wrangler pages deployments list *)",
+      "Bash(wrangler pages project info *)",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__read_network_requests",
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__preview_logs",
+      "mcp__Claude_Browser__find",
+      "mcp__1e38596c-0a4c-4c3a-946c-2b9c35cb90e8__notion-fetch"
+    ]
+  }
+}
