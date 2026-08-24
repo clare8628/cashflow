@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { CATEGORY_NAMES, keywordCategorize, OTHER_CATEGORY } from "./categorize";
-import type { Entry, NotionSummaryResponse } from "./types";
+import { flattenDays } from "./notion";
+import type { DayLine, NotionSummaryResponse } from "./types";
 
 const KV_KEY_PREFIX = "cat:";
 const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
@@ -100,8 +101,8 @@ async function classifyWithAI(ai: Ai, descriptions: string[]): Promise<Map<strin
 export async function categorizeSummary(
   summary: NotionSummaryResponse,
 ): Promise<NotionSummaryResponse> {
-  const allEntries = summary.months.flatMap((m) => m.entries);
-  const uniqueDescriptions = [...new Set(allEntries.map((e) => e.description))];
+  const allDescriptions = summary.months.flatMap((m) => m.days.flatMap((d) => d.items.map((i) => i.description)));
+  const uniqueDescriptions = [...new Set(allDescriptions)];
   if (uniqueDescriptions.length === 0) return summary;
 
   let env: CloudflareEnv | null = null;
@@ -134,20 +135,26 @@ export async function categorizeSummary(
     }
   }
 
-  const applyCategory = (entry: Entry): Entry => ({
-    ...entry,
-    category: categoryByDescription.get(entry.description) ?? OTHER_CATEGORY,
+  const applyToDays = (days: DayLine[]): DayLine[] =>
+    days.map((day) => ({
+      ...day,
+      items: day.items.map((item) => ({
+        ...item,
+        category: categoryByDescription.get(item.description) ?? OTHER_CATEGORY,
+      })),
+    }));
+
+  const months = summary.months.map((m) => {
+    const days = applyToDays(m.days);
+    return { ...m, days, entries: flattenDays(days) };
   });
 
-  const months = summary.months.map((m) => ({ ...m, entries: m.entries.map(applyCategory) }));
-  const currentMonth = summary.currentMonth.pageMissing
-    ? summary.currentMonth
-    : {
-        ...summary.currentMonth,
-        entries:
-          months.find((m) => m.monthNumber === summary.currentMonth.monthNumber)?.entries ??
-          summary.currentMonth.entries.map(applyCategory),
-      };
+  let currentMonth = summary.currentMonth;
+  if (!summary.currentMonth.pageMissing) {
+    const matched = months.find((m) => m.monthNumber === summary.currentMonth.monthNumber);
+    const days = matched ? matched.days : applyToDays(summary.currentMonth.days);
+    currentMonth = { ...summary.currentMonth, days, entries: flattenDays(days) };
+  }
 
   return { currentMonth, months };
 }

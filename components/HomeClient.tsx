@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
+import MonthEntries, { type DeleteDayInput, type SaveDayInput } from "@/components/MonthEntries";
 import MonthProgress from "@/components/MonthProgress";
+import MonthTabs from "@/components/MonthTabs";
+import OverspendBanner from "@/components/OverspendBanner";
 import SurplusHistory from "@/components/SurplusHistory";
 import type { NotionSummaryResponse } from "@/lib/types";
 
@@ -13,6 +16,7 @@ export default function HomeClient() {
   const [budget, setBudget] = useState(DEFAULT_BUDGET);
   const [budgetLoaded, setBudgetLoaded] = useState(false);
   const [data, setData] = useState<NotionSummaryResponse | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,10 +50,57 @@ export default function HomeClient() {
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (data && selectedMonth === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- default month selection once data first loads
+      setSelectedMonth(data.currentMonth.monthNumber);
+    }
+  }, [data, selectedMonth]);
+
   const handleBudgetChange = (value: number) => {
     setBudget(value);
     window.localStorage.setItem(BUDGET_STORAGE_KEY, String(value));
   };
+
+  const saveDay = useCallback(async (input: SaveDayInput) => {
+    const res = await fetch("/api/notion/day", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const json = (await res.json()) as NotionSummaryResponse & { error?: string };
+    if (!res.ok) throw new Error(json.error ?? "儲存失敗");
+    setData(json);
+  }, []);
+
+  const deleteDay = useCallback(async (input: DeleteDayInput) => {
+    const res = await fetch("/api/notion/day", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const json = (await res.json()) as NotionSummaryResponse & { error?: string };
+    if (!res.ok) throw new Error(json.error ?? "刪除失敗");
+    setData(json);
+  }, []);
+
+  // The live current month may not have a Notion page yet (pageMissing) —
+  // surface it as a selectable/creatable tab alongside the real months.
+  const monthsWithCurrentGap = useMemo(() => {
+    if (!data) return [];
+    const list = [...data.months];
+    if (data.currentMonth.pageMissing && !list.some((m) => m.monthNumber === data.currentMonth.monthNumber)) {
+      list.push(data.currentMonth);
+    }
+    return list.sort((a, b) => a.monthNumber - b.monthNumber);
+  }, [data]);
+
+  const selectedMonthSummary = useMemo(
+    () => monthsWithCurrentGap.find((m) => m.monthNumber === selectedMonth) ?? null,
+    [monthsWithCurrentGap, selectedMonth],
+  );
+
+  const isCurrent = !!data && selectedMonthSummary?.monthNumber === data.currentMonth.monthNumber;
 
   return (
     <div className="min-h-screen bg-background px-4 py-12 sm:px-10">
@@ -90,17 +141,32 @@ export default function HomeClient() {
           </div>
         )}
 
-        {data && (
+        {data && selectedMonthSummary && (
           <>
-            <MonthProgress
-              label={data.currentMonth.label}
-              spent={data.currentMonth.spent}
+            <OverspendBanner label={selectedMonthSummary.label} spent={selectedMonthSummary.spent} budget={budget} />
+
+            <MonthTabs
+              tabs={monthsWithCurrentGap.map((m) => ({ monthNumber: m.monthNumber, label: m.label, spent: m.spent }))}
+              selected={selectedMonthSummary.monthNumber}
+              onSelect={setSelectedMonth}
               budget={budget}
-              dayOfMonth={data.currentMonth.dayOfMonth}
-              daysInMonth={data.currentMonth.daysInMonth}
-              pageMissing={data.currentMonth.pageMissing}
             />
-            <CategoryBreakdown label={data.currentMonth.label} entries={data.currentMonth.entries} />
+
+            <MonthProgress
+              label={selectedMonthSummary.label}
+              spent={selectedMonthSummary.spent}
+              budget={budget}
+              dayOfMonth={isCurrent ? data.currentMonth.dayOfMonth : undefined}
+              daysInMonth={isCurrent ? data.currentMonth.daysInMonth : undefined}
+              pageMissing={isCurrent && data.currentMonth.pageMissing}
+            />
+            <CategoryBreakdown label={selectedMonthSummary.label} entries={selectedMonthSummary.entries} />
+            <MonthEntries
+              monthNumber={selectedMonthSummary.monthNumber}
+              days={selectedMonthSummary.days}
+              onSave={saveDay}
+              onDelete={deleteDay}
+            />
             <SurplusHistory months={data.months} budget={budget} />
           </>
         )}
