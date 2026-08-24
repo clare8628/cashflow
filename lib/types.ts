@@ -3,6 +3,7 @@ export interface Entry {
   day: number;
   description: string;
   amount: number;
+  category: string;
 }
 
 export interface MonthSummary {

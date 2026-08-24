@@ -1,3 +1,4 @@
+import { OTHER_CATEGORY } from "./categorize";
 import type { CurrentMonthSummary, Entry, MonthSummary, NotionSummaryResponse } from "./types";
 
 const NOTION_VERSION = "2022-06-28";
@@ -91,6 +92,8 @@ function parseEntriesFromText(text: string, monthNumber: number): Entry[] {
         day: Number(dayStr),
         description: description.trim(),
         amount,
+        // Resolved later by categorizeSummary() once entries are assembled.
+        category: OTHER_CATEGORY,
       });
     }
   }

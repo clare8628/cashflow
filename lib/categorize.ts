@@ -9,8 +9,9 @@ interface CategoryDef {
   keywords: string[];
 }
 
-// Keyword lists are heuristic and editable — add/remove keywords here as
-// spending habits show up miscategorized.
+// Keyword lists are only used as a fallback (see keywordCategorize) when the
+// AI classifier in lib/ai-categorize.ts is unavailable — e.g. local dev
+// without `wrangler dev --remote`. The AI call is the primary classifier.
 const CATEGORIES: CategoryDef[] = [
   {
     name: "飲食",
@@ -65,7 +66,10 @@ const CATEGORIES: CategoryDef[] = [
   },
 ];
 
-export function categorize(description: string): string {
+export const CATEGORY_NAMES = CATEGORIES.map((c) => c.name);
+
+// Fallback only — used when the AI classifier can't run. See module comment above.
+export function keywordCategorize(description: string): string {
   const lower = description.toLowerCase();
   for (const category of CATEGORIES) {
     if (category.keywords.some((keyword) => lower.includes(keyword.toLowerCase()))) {
@@ -85,10 +89,13 @@ export interface CategoryGroup {
   entries: Entry[];
 }
 
+// Entries are expected to already carry a resolved `category` (see
+// lib/ai-categorize.ts::categorizeSummary, called server-side before this
+// ever reaches the client).
 export function groupByCategory(entries: Entry[]): CategoryGroup[] {
   const map = new Map<string, Entry[]>();
   for (const entry of entries) {
-    const name = categorize(entry.description);
+    const name = entry.category || OTHER_CATEGORY;
     const list = map.get(name);
     if (list) {
       list.push(entry);

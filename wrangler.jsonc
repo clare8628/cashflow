@@ -11,6 +11,15 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "ai": {
+    "binding": "AI"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CATEGORY_CACHE",
+      "id": "98fbf3bde61d4a9e945f47cb27541c20"
+    }
+  ],
   "observability": {
     "enabled": true
   }

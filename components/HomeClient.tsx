@@ -31,9 +31,9 @@ export default function HomeClient() {
     setError(null);
     try {
       const res = await fetch("/api/notion", { cache: "no-store" });
-      const json = await res.json();
+      const json = (await res.json()) as NotionSummaryResponse & { error?: string };
       if (!res.ok) throw new Error(json.error ?? "讀取失敗");
-      setData(json as NotionSummaryResponse);
+      setData(json);
     } catch (e) {
       setError(e instanceof Error ? e.message : "未知錯誤");
     } finally {
