@@ -1,4 +1,6 @@
 import { OTHER_CATEGORY } from "./categorize";
+import { createLedgerDayLine } from "./ledger";
+export { getNotionSummary } from "./ledger";
 import type { CurrentMonthSummary, DayLine, Entry, MonthSummary, NotionSummaryResponse } from "./types";
 
 const NOTION_VERSION = "2022-06-28";
@@ -8,7 +10,7 @@ const MONTH_TITLE_RE = /^(\d{1,2})\s*月$/;
 // before it, e.g. "啤酒530". The leading month number is parsed but never
 // used — every line's month comes from the page it lives on (see
 // parseBlockLines), so a stray/incorrect "M/" in the text is harmless.
-const DAY_LINE_RE = /^(\d{1,2})\/(\d{1,2})\s+(.+)$/;
+export const DAY_LINE_RE = /^(\d{1,2})\/(\d{1,2})\s+(.+)$/;
 const ITEM_RE = /^(.+?)\s*([\d,]+(?:\.\d+)?)$/;
 // Characters that split one day-line into multiple items — a description
 // containing one of these would fragment into phantom items on the next
@@ -22,7 +24,7 @@ interface NotionRichText {
   plain_text: string;
 }
 
-interface NotionBlock {
+export interface NotionBlock {
   id: string;
   type: string;
   child_page?: { title: string };
@@ -38,7 +40,7 @@ function getToken(): string {
   return token;
 }
 
-function getRootPageId(): string {
+export function getRootPageId(): string {
   const id = process.env.NOTION_ROOT_PAGE_ID;
   if (!id) {
     throw new Error("缺少環境變數 NOTION_ROOT_PAGE_ID，請在 .env.local 或部署平台設定");
@@ -46,7 +48,7 @@ function getRootPageId(): string {
   return id;
 }
 
-async function notionFetch(path: string, init?: { method?: string; body?: unknown }): Promise<unknown> {
+export async function notionFetch(path: string, init?: { method?: string; body?: unknown }): Promise<unknown> {
   const res = await fetch(`https://api.notion.com/v1${path}`, {
     method: init?.method ?? "GET",
     headers: {
@@ -64,7 +66,7 @@ async function notionFetch(path: string, init?: { method?: string; body?: unknow
   return res.json();
 }
 
-async function fetchAllBlockChildren(blockId: string): Promise<NotionBlock[]> {
+export async function fetchAllBlockChildren(blockId: string): Promise<NotionBlock[]> {
   const blocks: NotionBlock[] = [];
   let cursor: string | undefined;
   do {
@@ -81,11 +83,11 @@ async function fetchAllBlockChildren(blockId: string): Promise<NotionBlock[]> {
   return blocks;
 }
 
-function blockText(block: NotionBlock): string {
+export function blockText(block: NotionBlock): string {
   return (block.paragraph?.rich_text ?? []).map((t) => t.plain_text).join("");
 }
 
-function parseItemsFromRest(rest: string): { description: string; amount: number }[] {
+export function parseItemsFromRest(rest: string): { description: string; amount: number }[] {
   const items: { description: string; amount: number }[] = [];
   for (const raw of rest.split(/[、,，]/)) {
     const item = raw.trim();
@@ -166,11 +168,11 @@ async function fetchMonthDays(pageId: string, monthNumber: number): Promise<DayL
   return days;
 }
 
-function sumEntries(entries: Entry[]): number {
+export function sumEntries(entries: Entry[]): number {
   return entries.reduce((total, entry) => total + entry.amount, 0);
 }
 
-function getTaipeiToday(): { year: number; month: number; day: number } {
+export function getTaipeiToday(): { year: number; month: number; day: number } {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Taipei",
     year: "numeric",
@@ -181,8 +183,7 @@ function getTaipeiToday(): { year: number; month: number; day: number } {
   return { year: get("year"), month: get("month"), day: get("day") };
 }
 
-export async function getNotionSummary(): Promise<NotionSummaryResponse> {
-  const rootPageId = getRootPageId();
+export async function getMonthPagesSummary(rootPageId: string): Promise<NotionSummaryResponse> {
   const monthPages = await findMonthPages(rootPageId);
   const today = getTaipeiToday();
 
@@ -226,7 +227,7 @@ export async function getNotionSummary(): Promise<NotionSummaryResponse> {
     };
   }
 
-  return { currentMonth, months };
+  return { currentMonth, months, expected: [], expectedPageId: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -234,7 +235,7 @@ export async function getNotionSummary(): Promise<NotionSummaryResponse> {
 // app round-trip correctly through the same regexes used to read it.
 // ---------------------------------------------------------------------------
 
-function toRichText(text: string): { type: "text"; text: { content: string } }[] {
+export function toRichText(text: string): { type: "text"; text: { content: string } }[] {
   const chunks: { type: "text"; text: { content: string } }[] = [];
   for (let i = 0; i < text.length; i += RICH_TEXT_CHUNK) {
     chunks.push({ type: "text", text: { content: text.slice(i, i + RICH_TEXT_CHUNK) } });
@@ -256,6 +257,7 @@ function formatDayLine(month: number, day: number, items: { description: string;
 
 async function createDayLine(monthNumber: number, day: number, lineText: string): Promise<void> {
   const rootPageId = getRootPageId();
+  if (await createLedgerDayLine(rootPageId, lineText)) return;
   const monthPages = await findMonthPages(rootPageId);
   const existing = monthPages.find((p) => p.monthNumber === monthNumber);
   const newBlock = { object: "block", type: "paragraph", paragraph: { rich_text: toRichText(lineText) } };

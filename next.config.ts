@@ -7,4 +7,6 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-initOpenNextCloudflareForDev();
+// SKIP_CF_DEV=1 builds/previews locally without Cloudflare credentials
+// (AI categorisation is then skipped).
+if (!process.env.SKIP_CF_DEV) initOpenNextCloudflareForDev();

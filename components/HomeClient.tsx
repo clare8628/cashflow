@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
+import ExpectedExpenses, { type ExpectedInput } from "@/components/ExpectedExpenses";
 import MonthEntries, { type DeleteDayInput, type SaveDayInput } from "@/components/MonthEntries";
 import MonthProgress from "@/components/MonthProgress";
 import MonthTabs from "@/components/MonthTabs";
 import OverspendBanner from "@/components/OverspendBanner";
 import SurplusHistory from "@/components/SurplusHistory";
-import type { NotionSummaryResponse } from "@/lib/types";
+import type { ExpectedExpense, NotionSummaryResponse } from "@/lib/types";
 
 const BUDGET_STORAGE_KEY = "cashflow_budget";
 const DEFAULT_BUDGET = 30000;
@@ -84,6 +85,25 @@ export default function HomeClient() {
     setData(json);
   }, []);
 
+  const callExpected = useCallback(async (method: "POST" | "DELETE", body: unknown) => {
+    const res = await fetch("/api/notion/expected", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const json = (await res.json()) as { expected?: ExpectedExpense[]; error?: string };
+    if (!res.ok || !json.expected) throw new Error(json.error ?? "操作失敗");
+    const expected = json.expected;
+    setData((prev) => (prev ? { ...prev, expected } : prev));
+  }, []);
+
+  const saveExpected = useCallback((input: ExpectedInput) => callExpected("POST", input), [callExpected]);
+  const deleteExpected = useCallback(
+    (item: ExpectedExpense) =>
+      callExpected("DELETE", { blockId: item.blockId, lineIndex: item.lineIndex, name: item.name }),
+    [callExpected],
+  );
+
   // The live current month may not have a Notion page yet (pageMissing) —
   // surface it as a selectable/creatable tab alongside the real months.
   const monthsWithCurrentGap = useMemo(() => {
@@ -139,6 +159,10 @@ export default function HomeClient() {
           <div className="rounded-sm border border-status-critical/30 bg-status-critical/10 px-4 py-3 text-sm text-status-critical">
             讀取 Notion 資料失敗：{error}
           </div>
+        )}
+
+        {data && (
+          <ExpectedExpenses items={data.expected ?? []} onSave={saveExpected} onDelete={deleteExpected} />
         )}
 
         {data && selectedMonthSummary && (

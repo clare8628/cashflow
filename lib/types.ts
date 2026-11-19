@@ -39,7 +39,21 @@ export interface CurrentMonthSummary extends MonthSummary {
   pageMissing: boolean;
 }
 
+export type ExpectedFrequency = "每月" | "每年" | "一次";
+
+// A reminder for a cost that is NOT in the spending ledger (e.g. 年度家庭儲蓄金).
+export interface ExpectedExpense {
+  blockId: string;
+  lineIndex: number;
+  name: string;
+  amount: number;
+  frequency: ExpectedFrequency;
+  note: string;
+}
+
 export interface NotionSummaryResponse {
   currentMonth: CurrentMonthSummary;
   months: MonthSummary[];
+  expected: ExpectedExpense[];
+  expectedPageId: string | null;
 }

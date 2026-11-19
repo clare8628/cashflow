@@ -156,5 +156,5 @@ export async function categorizeSummary(
     currentMonth = { ...summary.currentMonth, days, entries: flattenDays(days) };
   }
 
-  return { currentMonth, months };
+  return { ...summary, currentMonth, months };
 }
