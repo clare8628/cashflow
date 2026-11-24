@@ -130,7 +130,7 @@ export default function HomeClient() {
             <span className="mt-1 h-8 w-[3px] shrink-0 bg-accent" aria-hidden="true" />
             <div>
               <h1 className="font-serif text-2xl font-semibold tracking-wide text-foreground">
-                退休金流管理
+                現金流管理系統
               </h1>
               <p className="mt-1.5 text-sm text-secondary">資料來源・Notion「退休每月金流管理」</p>
             </div>

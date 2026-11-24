@@ -15,7 +15,7 @@ const notoSerif = Noto_Serif_TC({
 });
 
 export const metadata: Metadata = {
-  title: "退休金流管理",
+  title: "現金流管理系統",
   description: "追蹤退休後每月花費與預算",
 };
 
